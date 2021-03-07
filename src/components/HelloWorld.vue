@@ -19,7 +19,12 @@ export default {
       form: {
         tag: ""
       },
-      combinedQuestionsArray: []
+      combinedQuestionsArray: [],
+      combinedAnswersArray: [],
+      questionIDsArray: [],
+      answerIDsArray: [],
+      questionIDsString: "",
+      answerIDsString: ""
     };
   },
   methods: {
@@ -37,7 +42,7 @@ export default {
     //     now +
     //     "&order=desc&sort=activity&tagged=" +
     //     tag +
-    //     "&site=stackoverflow";
+    //     "&site=stackoverflow&filter=withbody";
     //   var highestRated =
     //     "https://api.stackexchange.com/2.2/questions?page=1&pagesize=10&fromdate=" +
     //     oneWeekAgo +
@@ -45,7 +50,7 @@ export default {
     //     now +
     //     "&order=desc&sort=votes&tagged=" +
     //     tag +
-    //     "&site=stackoverflow";
+    //     "&site=stackoverflow&filter=withbody";
 
     //     const recentRequest = this.$axios.get(mostRecent)
     //     const ratedRequest = this.$axios.get(highestRated)
@@ -61,65 +66,115 @@ export default {
     // },
     sortQuestions() {
       var arr1 = [
-        { creation_date: 1615102995 },
-        { creation_date: 1615102927 },
-        { creation_date: 1615095879 },
-        { creation_date: 1615102785 },
-        { creation_date: 1615063388 },
-        { creation_date: 1615099540 },
-        { creation_date: 1615101200 },
-        { creation_date: 1615102474 },
-        { creation_date: 1615101892 },
-        { creation_date: 1615101775 }
+        { creation_date: 1615102995,questionID:66430308 },
+        { creation_date: 1615102927,questionID:66430308 },
+        { creation_date: 1615095879,questionID:66430308 },
+        { creation_date: 1615102785,questionID:66430308 },
+        { creation_date: 1615063388,questionID:66430308 },
+        { creation_date: 1615099540,questionID:66430308 },
+        { creation_date: 1615101200,questionID:66430308 },
+        { creation_date: 1615102474,questionID:66430308 },
+        { creation_date: 1615101892,questionID:66430308 },
+        { creation_date: 1615101775,questionID:66430308 }
       ];
       var arr2 = [
-        { creation_date: 1614636045 },
-        { creation_date: 1614836330 },
-        { creation_date: 1614638990 },
-        { creation_date: 1614819117 },
-        { creation_date: 1614789789 },
-        { creation_date: 1614575156 },
-        { creation_date: 1614849107 },
-        { creation_date: 1614673723 },
-        { creation_date: 1614701299 },
-        { creation_date: 1614950844 }
+        { creation_date: 1614636045,questionID:66430308 },
+        { creation_date: 1614836330,questionID:66430308 },
+        { creation_date: 1614638990,questionID:66430308 },
+        { creation_date: 1614819117,questionID:66430308 },
+        { creation_date: 1614789789,questionID:66430308 },
+        { creation_date: 1614575156,questionID:66430308 },
+        { creation_date: 1614849107,questionID:66430308 },
+        { creation_date: 1614673723,questionID:66430308 },
+        { creation_date: 1614701299,questionID:66430308 },
+        { creation_date: 1614950844,questionID:66430308 }
       ];
 
       this.combinedQuestionsArray = arr1.concat(arr2);
-      console.log(this.combinedQuestionsArray);
+
+      //Get the ID's of each question
       for (var x = 0; x < this.combinedQuestionsArray.length; x++) {
-        console.log(this.combinedQuestionsArray[x].creation_date);
+       this.questionIDsArray[x] = this.combinedQuestionsArray[x].questionID;
       }
+      //Sort the questions
+      //use Array.prototype.sort https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
       this.combinedQuestionsArray.sort(function(a,b){
         return a.creation_date - b.creation_date
       })
-      console.log("after sorted");
-      for (var k = 0; k < this.combinedQuestionsArray.length; k++) {
-        console.log(this.combinedQuestionsArray[k].creation_date);
+
+      //Stringify the question ID's with semicolon delimiter 
+        for (var item of this.questionIDsArray) {
+        this.questionIDsString += ";"+item
       }
+      this.questionIDsString= this.questionIDsString.substring(1) //remove first semicolon
+      console.log(this.questionIDsString)
     },
-    sortResults() {
-      // use selection sort to sort the combined array by time
-      var length = this.combinedQuestionsArray.length;
-      for (var i = 0; i < length; i++) {
-        let minElement = i;
-        for (var j = i + 1; j < length; j++) {
-          if (
-            this.combinedQuestionsArray[minElement].creation_date >
-            this.combinedQuestionsArray[j].creation_date
-          ) {
-            minElement = j;
-          }
-        }
-        if (minElement != i) {
-          var tempElement = this.combinedQuestionsArray[i];
-          this.combinedQuestionsArray[i] = this.combinedQuestionsArray[
-            minElement
-          ];
-          this.combinedQuestionsArray[minElement] = tempElement;
-        }
+  
+  
+    getAnswers() {
+
+
+      // this.$axios
+      //   .get(
+      //     "/2.2/questions/"+questionID+"/answers?page=1&pagesize=100&order=desc&sort=activity&site=stackoverflow"
+      //   )
+      //   .then(function(response) {
+      //     // handle success
+      //      this.combinedAnswersArray = ratedResponse.data.items
+
+      //   })
+      //   .catch(function(error) {
+      //     // handle error
+      //     console.log(error);
+      //   });
+
+      //Stringify the answer ID's with semicolon delimiter 
+      for (var x = 0; x < this.combinedAnswersArray.length; x++) {
+       this.answerIDsArray[x] = this.combinedAnswersArray[x].questionID;
       }
+      
+    },
+    getCommentsForQuestion() {
+
+      // this.$axios
+      //   .get(
+      //     "https://api.stackexchange.com/2.2/posts/"+this.questionIDsString+"/comments?order=desc&sort=creation&site=stackoverflow&filter=withbody"
+      //   )
+      //   .then(function(response) {
+      //     // handle success
+      //      this.combinedAnswersArray = ratedResponse.data.items
+
+      //   })
+      //   .catch(function(error) {
+      //     // handle error
+      //     console.log(error);
+      //   });
+      
+    },
+    getCommentsForAnswers() {
+
+      // this.$axios
+      //   .get(
+      //     ""https://api.stackexchange.com/2.2/posts/"+this.answerIDsArray+"/comments?order=desc&sort=creation&site=stackoverflow&filter=withbody""
+      //   )
+      //   .then(function(response) {
+      //     // handle success
+      //      this.combinedAnswersArray = ratedResponse.data.items
+
+      //   })
+      //   .catch(function(error) {
+      //     // handle error
+      //     console.log(error);
+      //   });
+      
+    },
+    createObjectMap(){
+      //Map the comments,questions and answers all the one post id
+
+      
     }
-  }
+  
+}
+
 };
 </script>
