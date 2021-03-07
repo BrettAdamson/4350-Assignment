@@ -7,9 +7,19 @@
         <b-form-input v-model="form.tag" type="text" placeholder="Enter tag" required></b-form-input>
         <b-button type="submit" variant="primary" class="mt-4" @click="submit()">Submit</b-button>
         <div class="mt-4" v-for="item in listObject" :key="item.question_id">
-          <b-button v-b-toggle="'collapse-' + item.question_id" class="m-1">{{item.questionBody.title}}</b-button>
+          <b-button
+            v-b-toggle="'collapse-' + item.question_id"
+            class="m-1"
+          >{{item.questionBody.title}}</b-button>
           <b-collapse :id="'collapse-' + item.question_id">
-            <b-card><div v-html="item.questionBody.body"></div></b-card>
+            <b-card title="Question">
+              <div v-html="item.questionBody.body"></div>
+            </b-card>
+            <div v-for="answer in item.answerList" :key="answer.answer_id">
+              <b-card title="Answer">
+                <div v-html="answer.body"></div>
+              </b-card>
+            </div>
           </b-collapse>
         </div>
       </b-col>
@@ -64,7 +74,7 @@ export default {
       var recentArray = [];
       await this.$axios
         .get(
-          "https://api.stackexchange.com/2.2/questions?page=1&pagesize=10&fromdate=" +
+          "https://api.stackexchange.com/2.2/questions?page=1&pagesize=1&fromdate=" +
             oneWeekAgo +
             "&todate=" +
             now +
@@ -83,7 +93,7 @@ export default {
 
       await this.$axios
         .get(
-          "https://api.stackexchange.com/2.2/questions?page=1&pagesize=10&fromdate=" +
+          "https://api.stackexchange.com/2.2/questions?page=1&pagesize=1&fromdate=" +
             oneWeekAgo +
             "&todate=" +
             now +
