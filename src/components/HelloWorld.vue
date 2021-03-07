@@ -5,7 +5,7 @@
       <b-col class="mt-4 pt-4">
         <h1>COMP 4350 Assignment</h1>
         <b-form-input v-model="form.tag" type="text" placeholder="Enter tag" required></b-form-input>
-        <b-button type="submit" variant="primary" class="mt-4" @click="queryResults()">Submit</b-button>
+        <b-button type="submit" variant="primary" class="mt-4" @click="submit()">Submit</b-button>
       </b-col>
       <b-col></b-col>
     </b-row>
@@ -21,13 +21,19 @@ export default {
       },
       combinedQuestionsArray: [],
       combinedAnswersArray: [],
-      questionIDsArray: [],
       answerIDsArray: [],
-      questionIDsString: "",
       answerIDsString: ""
     };
   },
   methods: {
+    async submit(){
+    var questionsArray  = await this.queryResults()
+    console.log(questionsArray)
+    
+    var questionIDString = await this.getQuestionIDString(questionsArray)
+    console.log(questionIDString)
+
+    },
     async queryResults() {
       var now = new Date();
       var oneWeekAgo = new Date();
@@ -68,7 +74,6 @@ export default {
         )
         .then(function(response) {
           // handle success
-          console.log(response.data);
            ratedArray = response.data.items;
         })
         .catch(function(error) {
@@ -76,25 +81,22 @@ export default {
           console.log(error);
         });
 
-          this.combinedQuestionsArray = ratedArray.concat(recentArray);
-          console.log(this.combinedQuestionsArray)
-    },
-    async sortQuestions() {
-      //Get the ID's of each question
-      for (var x = 0; x < this.combinedQuestionsArray.length; x++) {
-        this.questionIDsArray[x] = this.combinedQuestionsArray[x].questionID;
-      }
+          this.combinedQuestionsArray =  ratedArray.concat(recentArray);
       //Sort the questions
       //use Array.prototype.sort https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
       this.combinedQuestionsArray.sort(function(a, b) {
         return a.creation_date - b.creation_date;
       });
-
-      //Stringify the question ID's with semicolon delimiter
-      for (var item of this.questionIDsArray) {
-        this.questionIDsString += ";" + item;
+          return this.combinedQuestionsArray
+    },
+    async getQuestionIDString(questionArray) {
+      //Get the ID's of each question
+      var questionIDsString = ""
+      for (var x = 0; x < questionArray.length; x++) {
+        questionIDsString += ";"+ questionArray[x].question_id;
       }
-      this.questionIDsString = this.questionIDsString.substring(1); //remove first semicolon
+      questionIDsString = questionIDsString.substring(1); //remove first semicolon
+      return questionIDsString
     },
 
     async getAnswers() {
