@@ -9,7 +9,7 @@
         <div class="mt-4" v-for="item in listObject" :key="item.question_id">
           <b-button v-b-toggle="'collapse-' + item.question_id" class="m-1">{{item.questionBody.title}}</b-button>
           <b-collapse :id="'collapse-' + item.question_id">
-            <b-card>I am collapsible content!</b-card>
+            <b-card><div v-html="item.questionBody.body"></div></b-card>
           </b-collapse>
         </div>
       </b-col>
@@ -64,7 +64,7 @@ export default {
       var recentArray = [];
       await this.$axios
         .get(
-          "https://api.stackexchange.com/2.2/questions?page=1&pagesize=1&fromdate=" +
+          "https://api.stackexchange.com/2.2/questions?page=1&pagesize=10&fromdate=" +
             oneWeekAgo +
             "&todate=" +
             now +
@@ -83,7 +83,7 @@ export default {
 
       await this.$axios
         .get(
-          "https://api.stackexchange.com/2.2/questions?page=1&pagesize=1&fromdate=" +
+          "https://api.stackexchange.com/2.2/questions?page=1&pagesize=10&fromdate=" +
             oneWeekAgo +
             "&todate=" +
             now +
