@@ -23,13 +23,17 @@ export default {
   },
   methods: {
     queryMostRecent() {
-     // var numResults = 10;
+    var now = new Date()
+    var oneWeekAgo = new Date()
+    oneWeekAgo.setDate(now.getDate()-7)
+   now = Math.floor(now.getTime()/1000)
+   oneWeekAgo = Math.floor(oneWeekAgo.getTime()/1000)
      var tag = encodeURIComponent(this.form.tag)
       this.$axios
-        .get("https://api.stackexchange.com/2.2/questions?page=1&pagesize=10&fromdate=1614470400&todate=1614988800&order=desc&sort=activity&tagged="+tag+"&site=stackoverflow")
+        .get("https://api.stackexchange.com/2.2/questions?page=1&pagesize=10&fromdate="+oneWeekAgo+"&todate="+now+"&order=desc&sort=activity&tagged="+tag+"&site=stackoverflow")
         .then(function(response) {
           // handle success
-          console.log(response.data);
+          console.log(response.data)
         })
         .catch(function(error) {
           // handle error
