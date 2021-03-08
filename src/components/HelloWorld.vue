@@ -14,22 +14,33 @@
           <b-collapse :id="'collapse-' + item.question_id">
             <b-card>
               <h2>Question {{item.question_id}}</h2>
+              <h3>Score: {{item.questionBody.score}}</h3>
+              <h3>Posted: {{getPostedDate(item.questionBody.creation_date)}}</h3>
               <div v-html="item.questionBody.body"></div>
             </b-card>
             <div v-for="comment in item.questionCommentList" :key="comment.comment_id">
               <b-card>
                 <h2>Comment {{comment.comment_id}}</h2>
+                <h3>Score {{comment.score}}</h3>
+                <h3>Posted: {{getPostedDate(comment.creation_date)}}</h3>
+
                 <div v-html="comment.body"></div>
               </b-card>
             </div>
             <div v-for="answer in item.answerList" :key="answer.answer_id">
               <b-card>
                 <h2>Answer {{answer.answer_id}}</h2>
+                <h3>Score: {{answer.score}}</h3>
+                <h3>Posted: {{getPostedDate(answer.creation_date)}}</h3>
+
                 <div v-html="answer.body"></div>
               </b-card>
               <div v-for="answerComment in answer.answerComments" :key="answerComment.comment_id">
                 <b-card>
                   <h2>Comment {{answerComment.comment_id}}</h2>
+                  <h3>Score {{answerComment.score}}</h3>
+                  <h3>Posted: {{getPostedDate(answerComment.creation_date)}}</h3>
+
                   <div v-html="answerComment.body"></div>
                 </b-card>
               </div>
@@ -54,37 +65,43 @@ export default {
     };
   },
   methods: {
+    getPostedDate(unixTimeStamp) {
+      var date = new Date(unixTimeStamp * 1000);
+      return date.toUTCString();
+    },
     async submit() {
+      //get the questions
       var questionsArray = await this.queryResults();
       console.log(questionsArray);
 
+      //get the question ids
       var questionIDString = await this.getQuestionIDString(questionsArray);
       console.log(questionIDString);
 
+      //get the answers
       var answersArray = await this.getAnswers(questionIDString);
-      console.log(answersArray);
 
+      //get the answer ids
       var answerIDsString = await this.getAnswersIDString(answersArray);
-      console.log(answerIDsString);
 
+      //get the comments for the questions
       var commentsForQuestionsArray = await this.getCommentsForQuestion(
         questionIDString
       );
-      console.log(commentsForQuestionsArray);
 
+      //get the comments for the answers
       var commentsForAnswersArray = await this.getCommentsForAnswers(
         answerIDsString
       );
-      console.log(commentsForAnswersArray);
 
-      var testObj = this.createPostArray(
+      var postMap = this.createPostArray(
         questionsArray,
         answersArray,
         commentsForQuestionsArray,
         commentsForAnswersArray
       );
-      console.log(testObj);
-      this.listObject = testObj;
+      this.listObject = postMap;
+      console.log(postMap);
       this.searchComplete = true;
     },
     async queryResults() {
