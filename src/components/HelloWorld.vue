@@ -12,13 +12,27 @@
             class="m-1"
           >{{item.questionBody.title}}</b-button>
           <b-collapse :id="'collapse-' + item.question_id">
-            <b-card title="Question">
+            <b-card>
+              <h2>Question {{item.question_id}}</h2>
               <div v-html="item.questionBody.body"></div>
             </b-card>
+            <div v-for="comment in item.questionCommentList" :key="comment.comment_id">
+              <b-card>
+                <h2>Comment {{comment.comment_id}}</h2>
+                <div v-html="comment.body"></div>
+              </b-card>
+            </div>
             <div v-for="answer in item.answerList" :key="answer.answer_id">
-              <b-card title="Answer">
+              <b-card>
+                <h2>Answer {{answer.answer_id}}</h2>
                 <div v-html="answer.body"></div>
               </b-card>
+              <div v-for="answerComment in answer.answerComments" :key="answerComment.comment_id">
+                <b-card>
+                  <h2>Comment {{answerComment.comment_id}}</h2>
+                  <div v-html="answerComment.body"></div>
+                </b-card>
+              </div>
             </div>
           </b-collapse>
         </div>
@@ -53,12 +67,22 @@ export default {
       var answerIDsString = await this.getAnswersIDString(answersArray);
       console.log(answerIDsString);
 
-      // var commentsForQuestionsArray = await this.getCommentsForQuestion(questionIDString)
-      // console.log(commentsForQuestionsArray)
+      var commentsForQuestionsArray = await this.getCommentsForQuestion(
+        questionIDString
+      );
+      console.log(commentsForQuestionsArray);
 
-      // var commentsForAnswersArray = await this.getCommentsForAnswers(answerIDsString)
-      // console.log(commentsForAnswersArray)
-      var testObj = this.createPostArray(questionsArray, answersArray);
+      var commentsForAnswersArray = await this.getCommentsForAnswers(
+        answerIDsString
+      );
+      console.log(commentsForAnswersArray);
+
+      var testObj = this.createPostArray(
+        questionsArray,
+        answersArray,
+        commentsForQuestionsArray,
+        commentsForAnswersArray
+      );
       console.log(testObj);
       this.listObject = testObj;
       this.searchComplete = true;
@@ -175,7 +199,7 @@ export default {
     },
     async getCommentsForAnswers(answerIDsString) {
       var answerComments = [];
-      this.$axios
+      await this.$axios
         .get(
           "https://api.stackexchange.com/2.2/posts/" +
             answerIDsString +
@@ -183,7 +207,6 @@ export default {
         )
         .then(function(response) {
           // handle success
-          console.log(response.data.items);
           answerComments = response.data.items;
         })
         .catch(function(error) {
@@ -192,17 +215,38 @@ export default {
         });
       return answerComments;
     },
-    createPostArray(questionsArray, answersArray) {
+    createPostArray(
+      questionsArray,
+      answersArray,
+      commentsForQuestionsArray,
+      commentsForAnswersArray
+    ) {
       //Map the comments,questions and answers all the one post id
       var postArray = [];
+      var postObject = {};
       for (var i = 0; i < questionsArray.length; i++) {
-        var testID = questionsArray[i].question_id;
-        var filter = answersArray.filter(
-          answer => answer.question_id === testID
+        var questionID = questionsArray[i].question_id;
+        var questionCommentFilter = commentsForQuestionsArray.filter(
+          comment => comment.post_id === questionID
         );
-        var postObject = {
-          question_id: testID,
-          answerList: filter,
+        var answerFilter = answersArray.filter(
+          answer => answer.question_id === questionID
+        );
+
+        for (var k = 0; k < answerFilter.length; k++) {
+          var answerID = answerFilter[k].answer_id;
+
+          var answerCommentFilter = commentsForAnswersArray.filter(
+            comment => comment.post_id === answerID
+          );
+          Object.assign(answerFilter[k], {
+            answerComments: answerCommentFilter
+          });
+        }
+        postObject = {
+          question_id: questionID,
+          answerList: answerFilter,
+          questionCommentList: questionCommentFilter,
           questionBody: questionsArray[i]
         };
         postArray.push(postObject);
