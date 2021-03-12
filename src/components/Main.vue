@@ -12,31 +12,39 @@
             class="m-1"
           >{{item.questionBody.title}}</b-button>
           <b-collapse :id="'collapse-' + item.question_id">
-            <b-card>
+            <b-card border-variant="primary">
               <h2>Question {{item.question_id}}</h2>
               <h3>Score: {{item.questionBody.score}}</h3>
               <h3>Posted: {{getPostedDate(item.questionBody.creation_date)}}</h3>
               <div v-html="item.questionBody.body"></div>
             </b-card>
+            <br />
             <div v-for="comment in item.questionCommentList" :key="comment.comment_id">
-              <b-card>
+                           <br />
+
+              <b-card border-variant="success">
                 <h2>Comment {{comment.comment_id}}</h2>
                 <h3>Score {{comment.score}}</h3>
                 <h3>Posted: {{getPostedDate(comment.creation_date)}}</h3>
 
                 <div v-html="comment.body"></div>
               </b-card>
+              <br />
             </div>
             <div v-for="answer in item.answerList" :key="answer.answer_id">
-              <b-card>
+              <b-card border-variant="danger">
                 <h2>Answer {{answer.answer_id}}</h2>
                 <h3>Score: {{answer.score}}</h3>
                 <h3>Posted: {{getPostedDate(answer.creation_date)}}</h3>
 
                 <div v-html="answer.body"></div>
               </b-card>
+              <br />
+
               <div v-for="answerComment in answer.answerComments" :key="answerComment.comment_id">
-                <b-card>
+                             <br />
+
+                <b-card border-variant="warning">
                   <h2>Comment {{answerComment.comment_id}}</h2>
                   <h3>Score {{answerComment.score}}</h3>
                   <h3>Posted: {{getPostedDate(answerComment.creation_date)}}</h3>
@@ -179,6 +187,7 @@ export default {
     },
 
     async getAnswers(questionIDsString) {
+      //get the answers to a list of questions
       var answerArray = [];
       await this.$axios
         .get(
@@ -197,6 +206,7 @@ export default {
       return answerArray;
     },
     async getCommentsForQuestion(questionIDsString) {
+      //get the comments for a list of questions
       var questionComments = [];
       await this.$axios
         .get(
@@ -215,6 +225,7 @@ export default {
       return questionComments;
     },
     async getCommentsForAnswers(answerIDsString) {
+      //get the comments for a list of answers
       var answerComments = [];
       await this.$axios
         .get(
@@ -238,10 +249,13 @@ export default {
       commentsForQuestionsArray,
       commentsForAnswersArray
     ) {
-      //Map the comments,questions and answers all the one post id
+      //Map the comments,questions and answers all the one post id object that can be
+      // displayed more easily in the vue instance
       var postArray = [];
       var postObject = {};
+
       for (var i = 0; i < questionsArray.length; i++) {
+        //For each question map all comments and answers
         var questionID = questionsArray[i].question_id;
         var questionCommentFilter = commentsForQuestionsArray.filter(
           comment => comment.post_id === questionID
@@ -251,6 +265,7 @@ export default {
         );
 
         for (var k = 0; k < answerFilter.length; k++) {
+          //for each answer map the comments to that specfic answer
           var answerID = answerFilter[k].answer_id;
 
           var answerCommentFilter = commentsForAnswersArray.filter(
@@ -260,12 +275,14 @@ export default {
             answerComments: answerCommentFilter
           });
         }
+        //combine a the answers and comments to a single question in one object
         postObject = {
           question_id: questionID,
           answerList: answerFilter,
           questionCommentList: questionCommentFilter,
           questionBody: questionsArray[i]
         };
+        //push that object onto an array
         postArray.push(postObject);
       }
       return postArray;
