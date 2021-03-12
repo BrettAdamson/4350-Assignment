@@ -80,11 +80,9 @@ export default {
     async submit() {
       //get the questions
       var questionsArray = await this.queryResults();
-      console.log(questionsArray);
 
       //get the question ids
       var questionIDString = await this.getQuestionIDString(questionsArray);
-      console.log(questionIDString);
 
       //get the answers
       var answersArray = await this.getAnswers(questionIDString);
@@ -109,7 +107,6 @@ export default {
         commentsForAnswersArray
       );
       this.listObject = postMap;
-      console.log(postMap);
       this.searchComplete = true;
     },
     async queryResults() {
